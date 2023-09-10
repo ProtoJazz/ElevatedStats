@@ -49,14 +49,17 @@ defmodule ElevatedStats.MatchServer do
         state.rate_limit_remaining <= 0 ->
           IO.puts("rate limit used up, sleep now")
           schedule_sync(:timer.seconds(60))
+          state
 
         Enum.count(state.match_queue) <= 0 && Enum.count(state.summoner_queue) <= 0 ->
           IO.puts("queues are empty, check for new users, or sleep")
           schedule_sync(:timer.seconds(60))
+          state
 
         Enum.count(state.match_queue) > 0 ->
           IO.puts("we got matches to sync")
           schedule_sync(:timer.seconds(60))
+          state
 
         Enum.count(state.summoner_queue) > 0 ->
           IO.puts("we got summoners to sync")
