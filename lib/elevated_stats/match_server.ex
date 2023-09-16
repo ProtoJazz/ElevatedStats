@@ -1,6 +1,6 @@
 defmodule ElevatedStats.MatchServer do
   use GenServer
-  alias ElevatedStats.{Summoner, Users}
+  alias ElevatedStats.{Summoner, Users, Matches}
 
   defmodule State do
     defstruct summoner_queue: [],
@@ -16,10 +16,9 @@ defmodule ElevatedStats.MatchServer do
   end
 
   def init(state) do
-    summoner_queue = Users.get_summoners_to_sync()
-    state = %{state | summoner_queue: summoner_queue}
+    state = update_users(state)
     IO.puts("OK, so we got some shit to sync. ")
-    IO.inspect(summoner_queue)
+    IO.inspect(state.summoner_queue)
     # :timer.hours(1)
     schedule_sync(:timer.seconds(5))
     handle_rate_limit_refresh(state.rate_limit_reset)
@@ -40,6 +39,19 @@ defmodule ElevatedStats.MatchServer do
     }
   end
 
+  def update_users(state) do
+    summoner_queue = Users.get_summoners_to_sync()
+    state = %{state | summoner_queue: summoner_queue}
+  end
+
+  def sync_match_async(state) do
+    [match | remaining_matches] = state.match_queue
+
+    # Task.async(fn match -> Matches.get_match_and_participants(match) end)
+    Matches.get_match_and_participants(match)
+    %State{state | match_queue: remaining_matches}
+  end
+
   def handle_info(:start_syncing, state) do
     IO.puts("DOING A SYNC")
     IO.inspect(state)
@@ -53,12 +65,14 @@ defmodule ElevatedStats.MatchServer do
 
         Enum.count(state.match_queue) <= 0 && Enum.count(state.summoner_queue) <= 0 ->
           IO.puts("queues are empty, check for new users, or sleep")
-          schedule_sync(:timer.seconds(60))
+          state = update_users(state)
+          schedule_sync(:timer.seconds(1))
           state
 
         Enum.count(state.match_queue) > 0 ->
           IO.puts("we got matches to sync")
-          schedule_sync(:timer.seconds(60))
+          state = sync_match_async(state)
+          schedule_sync(:timer.seconds(1))
           state
 
         Enum.count(state.summoner_queue) > 0 ->
