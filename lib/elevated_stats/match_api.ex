@@ -12,7 +12,7 @@ defmodule ElevatedStats.MatchApi do
   end
 
   def get_matches_for_summoner(puuid) do
-    url = "#{@base_url}/by-puuid/#{puuid}/ids"
+    url = "#{@base_url}/by-puuid/#{puuid}/ids?count=100"
 
     {:ok, match_resp} =
       Finch.build(:get, url, [{"X-Riot-Token", System.get_env("RIOT_KEY")}])

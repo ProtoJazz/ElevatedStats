@@ -200,6 +200,17 @@ defmodule ElevatedStats.Matches do
     MatchParticipant.changeset(match_participant, attrs)
   end
 
+  def filter_matches(matches) do
+    query =
+      from(i in Match,
+        where: i.id in ^matches,
+        select: i.id
+      )
+
+    existing_matches = Repo.all(query)
+    matches -- existing_matches
+  end
+
   def get_match_and_participants(match_id) do
     existing_match = Repo.get(Match, match_id)
 

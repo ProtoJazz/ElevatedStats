@@ -182,7 +182,13 @@ defmodule ElevatedStats.Users do
   end
 
   def get_matches_for_summoner(%Summoner{} = summoner) do
-    ElevatedStats.MatchApi.get_matches_for_summoner(summoner.puuid)
+    matches = ElevatedStats.MatchApi.get_matches_for_summoner(summoner.puuid)
+
+    update_summoner(summoner, %{
+      "last_sync" => DateTime.utc_now()
+    })
+
+    matches
   end
 
   @doc """

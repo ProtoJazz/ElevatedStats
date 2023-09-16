@@ -28,7 +28,12 @@ defmodule ElevatedStats.MatchServer do
   def get_matches_for_summoner(state) do
     [summoner | remaning_summoners] = state.summoner_queue
 
-    matches = Users.get_matches_for_summoner(summoner)
+    Users.get_matches_for_summoner(summoner)
+    |> handle_match_list(state, remaning_summoners)
+  end
+
+  def handle_match_list(matches, state, remaning_summoners) when is_list(matches) do
+    matches = Matches.filter_matches(matches)
     schedule_sync(:timer.seconds(0))
 
     %State{
@@ -37,6 +42,11 @@ defmodule ElevatedStats.MatchServer do
         match_queue: matches,
         rate_limit_remaining: state.rate_limit_remaining - 1
     }
+  end
+
+  def handle_match_list(matches, state, _remaning_summoners) when is_map(matches) do
+    schedule_sync(:timer.seconds(0))
+    rate_limit_exceeded(state)
   end
 
   def update_users(state) do
@@ -49,7 +59,12 @@ defmodule ElevatedStats.MatchServer do
 
     # Task.async(fn match -> Matches.get_match_and_participants(match) end)
     Matches.get_match_and_participants(match)
-    %State{state | match_queue: remaining_matches}
+
+    %State{
+      state
+      | match_queue: remaining_matches,
+        rate_limit_remaining: state.rate_limit_remaining - 1
+    }
   end
 
   def handle_info(:start_syncing, state) do
@@ -66,13 +81,19 @@ defmodule ElevatedStats.MatchServer do
         Enum.count(state.match_queue) <= 0 && Enum.count(state.summoner_queue) <= 0 ->
           IO.puts("queues are empty, check for new users, or sleep")
           state = update_users(state)
-          schedule_sync(:timer.seconds(1))
-          state
+
+          if(Enum.count(state.summoner_queue) > 0) do
+            schedule_sync(0)
+            state
+          else
+            schedule_sync(:timer.seconds(120))
+            state
+          end
 
         Enum.count(state.match_queue) > 0 ->
           IO.puts("we got matches to sync")
           state = sync_match_async(state)
-          schedule_sync(:timer.seconds(1))
+          schedule_sync(500)
           state
 
         Enum.count(state.summoner_queue) > 0 ->
@@ -81,6 +102,15 @@ defmodule ElevatedStats.MatchServer do
       end
 
     {:noreply, state}
+  end
+
+  def rate_limit_exceeded(state) do
+    %State{state | rate_limit_remaining: 0}
+  end
+
+  def handle_info(:rate_limit_exceeded, state) do
+    IO.puts("RATE LIMIT EXCEEDED")
+    {:noreply, rate_limit_exceeded(state)}
   end
 
   def handle_info(:refresh_rate_limit, state) do

@@ -18,7 +18,7 @@ defmodule ElevatedStats.Users.Summoner do
   @doc false
   def changeset(summoner, attrs) do
     summoner
-    |> cast(attrs, [:puuid, :summoner_name, :level, :icon_id, :account_id])
+    |> cast(attrs, [:puuid, :summoner_name, :level, :icon_id, :account_id, :last_sync])
     |> validate_required([:puuid, :summoner_name, :level, :icon_id])
   end
 end
