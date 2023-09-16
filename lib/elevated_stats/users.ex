@@ -181,6 +181,16 @@ defmodule ElevatedStats.Users do
     Repo.all(query)
   end
 
+  def get_summoner_by_name(name) do
+    query =
+      from(a in Summoner,
+        where: a.summoner_name == ^name,
+        select: a
+      )
+
+    Repo.one(query)
+  end
+
   def get_matches_for_summoner(%Summoner{} = summoner) do
     matches = ElevatedStats.MatchApi.get_matches_for_summoner(summoner.puuid)
 

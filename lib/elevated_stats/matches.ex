@@ -200,6 +200,16 @@ defmodule ElevatedStats.Matches do
     MatchParticipant.changeset(match_participant, attrs)
   end
 
+  def get_stats_for_summoner(summoner_id) do
+    query =
+      from(i in MatchParticipant,
+        where: i.summoner_id == ^summoner_id,
+        select: i
+      )
+
+    Repo.all(query)
+  end
+
   def filter_matches(matches) do
     query =
       from(i in Match,

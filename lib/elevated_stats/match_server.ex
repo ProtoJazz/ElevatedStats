@@ -123,6 +123,6 @@ defmodule ElevatedStats.MatchServer do
   end
 
   defp schedule_sync(time) do
-    Process.send_after(self(), :start_syncing, time)
+    # Process.send_after(self(), :start_syncing, time)
   end
 end

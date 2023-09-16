@@ -16,8 +16,8 @@ defmodule ElevatedStatsWeb.Router do
 
   scope "/", ElevatedStatsWeb do
     pipe_through(:browser)
-
-    get("/", PageController, :home)
+    live("/home", SummonerLive.Index, :index)
+    live("/stats/:id", StatsLive.Show, :show)
   end
 
   # Other scopes may use custom stacks.
