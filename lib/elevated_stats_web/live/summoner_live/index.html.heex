@@ -1,4 +1,16 @@
-<form phx-submit="handle_summoner_submit">
-  <input type="text"  name="summoner_name">
-  <button type="submit">Submit</button>
+<div class="grid h-screen place-items-center">
+<form class="join" phx-submit="handle_summoner_submit">
+  <div>
+    <div>
+      <input class="input input-bordered join-item"  name="summoner_name" placeholder="Summoner Name"/>
+    </div>
+  </div>
+  <select class="select select-bordered join-item">
+    <option disabled selected>Region</option>
+    <option>NA1</option>
+  </select>
+  <div class="indicator">
+    <button class="btn join-item"  type="submit">Search</button>
+  </div>
 </form>
+</div>

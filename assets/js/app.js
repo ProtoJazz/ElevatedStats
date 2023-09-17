@@ -21,6 +21,7 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
+import { plugins } from "../tailwind.config";
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -31,9 +32,29 @@ Hooks.StatsGraph = {
   mounted() {
     this.handleEvent("chart", ({ data }) => {
       console.log(data);
+      const plugin = {
+        beforeInit(chart) {
+          // Get a reference to the original fit function
+          const originalFit = chart.legend.fit;
 
+          // Override the fit function
+          chart.legend.fit = function fit() {
+            // Call the original function and bind scope in order to use `this` correctly inside it
+            originalFit.bind(chart.legend)();
+            // Change the height as suggested in other answers
+            this.height += 1500;
+          };
+        },
+      };
       const ctx = document.getElementById("myChart");
       const labels = data.lables;
+      let images = data.icons.map((icon) => {
+        var yourimage = new Image(40, 40);
+        yourimage.src = icon;
+        return yourimage;
+      });
+      console.log(images);
+
       const dumbData = {
         labels: labels,
         datasets: [
@@ -42,14 +63,24 @@ Hooks.StatsGraph = {
             data: data.towerDamage,
             borderColor: "rgba(154,140,152, 1)",
             backgroundColor: "rgba(154,140,152, 0.5)",
+            pointRadius: 50,
+            pointHoverRadius: 20,
+            pointHitRadius: 20,
+            pointStyle: images,
             yAxisID: "y",
+            lineTension: 0.4,
           },
           {
             label: "Damage Per Gold",
             data: data.damagePerGold,
             borderColor: "rgba(122,118,229, 1)",
             backgroundColor: "rgba(122,118,229, 0.5)",
+            pointRadius: 10,
+            pointHoverRadius: 1000,
+            pointHitRadius: 20,
+            pointStyle: images,
             yAxisID: "y1",
+            lineTension: 0.4,
           },
         ],
       };
@@ -58,6 +89,7 @@ Hooks.StatsGraph = {
         data: dumbData,
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           interaction: {
             mode: "index",
             intersect: false,
@@ -65,7 +97,7 @@ Hooks.StatsGraph = {
           stacked: false,
           plugins: {
             title: {
-              display: true,
+              display: false,
               text: "Chart.js Line Chart - Multi Axis",
             },
           },

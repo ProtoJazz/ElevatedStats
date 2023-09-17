@@ -3,7 +3,8 @@ defmodule ElevatedStats.ChartData do
            only: [
              :lables,
              :towerDamage,
-             :damagePerGold
+             :damagePerGold,
+             :icons
            ]}
-  defstruct lables: [], towerDamage: [], damagePerGold: []
+  defstruct lables: [], towerDamage: [], damagePerGold: [], icons: []
 end

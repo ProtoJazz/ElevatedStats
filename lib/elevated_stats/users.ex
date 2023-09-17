@@ -133,6 +133,16 @@ defmodule ElevatedStats.Users do
   """
   def get_account!(id), do: Repo.get!(Account, id)
 
+  def get_account_by_summoner_name(summoner_name) do
+    query =
+      from(a in Account,
+        where: a.summoner_name == ^summoner_name,
+        select: a
+      )
+
+    Repo.one(query)
+  end
+
   @doc """
   Creates a account.
 
@@ -183,12 +193,14 @@ defmodule ElevatedStats.Users do
 
   def get_summoner_by_name(name) do
     query =
-      from(a in Summoner,
+      from(a in Account,
         where: a.summoner_name == ^name,
         select: a
       )
 
-    Repo.one(query)
+    account = Repo.one(query) |> Repo.preload(:summoner)
+
+    account.summoner
   end
 
   def get_matches_for_summoner(%Summoner{} = summoner) do

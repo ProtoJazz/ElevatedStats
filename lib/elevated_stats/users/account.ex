@@ -3,10 +3,10 @@ defmodule ElevatedStats.Users.Account do
   import Ecto.Changeset
 
   schema "accounts" do
-    field :puuid, :string
-    field :region, :string
-    field :summoner_name, :string
-    has_one :summoners, ElevatedStats.Users.Summoner
+    field(:puuid, :string)
+    field(:region, :string)
+    field(:summoner_name, :string)
+    has_one(:summoner, ElevatedStats.Users.Summoner)
 
     timestamps()
   end
