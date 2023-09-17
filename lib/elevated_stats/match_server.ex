@@ -108,6 +108,15 @@ defmodule ElevatedStats.MatchServer do
     %State{state | rate_limit_remaining: 0}
   end
 
+  def new_user_added() do
+    GenServer.call(__MODULE__, :update_users)
+  end
+
+  def handle_call(:update_users, _, state) do
+    state = update_users(state)
+    {:reply, state, state}
+  end
+
   def handle_info(:rate_limit_exceeded, state) do
     IO.puts("RATE LIMIT EXCEEDED")
     {:noreply, rate_limit_exceeded(state)}

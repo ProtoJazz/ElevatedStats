@@ -18,14 +18,22 @@ defmodule ElevatedStatsWeb.StatsLive.Show do
       # get stats
       {:noreply, socket |> assign(:summoner, %{})}
     else
-      matches = Matches.get_stats_for_summoner(summoner.puuid)
+      matches = Matches.get_stats_for_summoner(summoner.puuid) |> Enum.take(50)
       IO.puts("We got data")
       IO.inspect(matches)
+
+      data_sets = %ElevatedStats.ChartData{
+        lables: Enum.map(Enum.to_list(1..Enum.count(matches)), fn p -> "#{p}" end),
+        towerDamage: Enum.map(matches, & &1.damage_dealt_to_turrets),
+        damagePerGold: Enum.map(matches, & &1.damage_per_gold)
+      }
+
+      IO.inspect(Enum.at(data_sets.lables, 15))
 
       {:noreply,
        socket
        |> assign(summoner: summoner, matches: matches)
-       |> push_event("chart", %{data: matches})}
+       |> push_event("chart", %{data: data_sets})}
     end
   end
 

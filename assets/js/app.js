@@ -33,31 +33,22 @@ Hooks.StatsGraph = {
       console.log(data);
 
       const ctx = document.getElementById("myChart");
-      const DATA_COUNT = 7;
-      const NUMBER_CFG = { count: DATA_COUNT, min: -100, max: 100 };
-
-      const labels = ["1", "2", "3", "4", "5", "6", "7"];
+      const labels = data.lables;
       const dumbData = {
         labels: labels,
         datasets: [
           {
-            label: "Dataset 1",
-            data: Chart.Utils.numbers(NUMBER_CFG),
-            borderColor: Chart.Utils.CHART_COLORS.red,
-            backgroundColor: Chart.Utils.transparentize(
-              Chart.Utils.CHART_COLORS.red,
-              0.5
-            ),
+            label: "Tower Damage",
+            data: data.towerDamage,
+            borderColor: "rgba(154,140,152, 1)",
+            backgroundColor: "rgba(154,140,152, 0.5)",
             yAxisID: "y",
           },
           {
-            label: "Dataset 2",
-            data: Chart.Utils.numbers(NUMBER_CFG),
-            borderColor: Chart.Utils.CHART_COLORS.blue,
-            backgroundColor: Chart.Utils.transparentize(
-              Chart.Utils.CHART_COLORS.blue,
-              0.5
-            ),
+            label: "Damage Per Gold",
+            data: data.damagePerGold,
+            borderColor: "rgba(122,118,229, 1)",
+            backgroundColor: "rgba(122,118,229, 0.5)",
             yAxisID: "y1",
           },
         ],
